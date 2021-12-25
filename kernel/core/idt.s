@@ -7,6 +7,12 @@
 .globl idt_trampoline
 .type  idt_trampoline,"function"
 
+.globl idt_80
+.type idt_80,"function"
+
+.globl idt_32
+.type idt_32,"function"
+
 /*
 ** send end-of-interrupt to PIC
 */
@@ -36,6 +42,8 @@ eoi_pic1:
 ** ...        
 ** EDI
 */
+
+
 idt_common:
         pusha
         mov     %esp, %eax
@@ -45,6 +53,28 @@ resume_from_intr:
         popa
         add     $8, %esp
         iret
+
+
+idt_80:
+        .align 16
+        pushl $-1
+        pushl $80
+        pusha
+        mov %esp, %eax
+        call intr_hdlr_80
+        jmp resume_from_intr
+
+idt_32:
+        .align 16
+        pushl   $-1
+        pushl	$32    
+        push	%eax
+	movb	$0x20, %al
+        outb	%al, $0x20
+	pop	%eax
+        pusha
+        mov %esp, %eax
+        call intr_hdlr_32
 
 /*
 ** IDT handlers

@@ -2,10 +2,14 @@
 #include <intr.h>
 #include <debug.h>
 #include <info.h>
+#include <tasks.h>
 
 extern info_t *info;
 extern void idt_trampoline();
+extern void idt_80();
+extern void idt_32();
 static int_desc_t IDT[IDT_NR_DESC];
+
 
 void intr_init()
 {
@@ -19,13 +23,38 @@ void intr_init()
    for(i=0 ; i<IDT_NR_DESC ; i++, isr += IDT_ISR_ALGN)
       int_desc(&IDT[i], gdt_krn_seg_sel(1), isr);
 
+
+   //set handler for the int 80
+   int_desc(&IDT[80], gdt_krn_seg_sel(1), (offset_t)idt_80);
+   (&IDT[80])->dpl = 3;
+   
+   //set the handler for the int 32
+   int_desc(&IDT[32], gdt_krn_seg_sel(1), (offset_t)idt_32);
+
    idtr.desc  = IDT;
    idtr.limit = sizeof(IDT) - 1;
    set_idtr(idtr);
 }
 
+
+void __regparm__(1) intr_hdlr_80(int_ctx_t * ctx){
+   //debug("In handler int80 %d\n", ctx->nr.blow);
+
+   uint32_t* compteur = (uint32_t*) ctx->gpr.esi.raw;
+   debug("############# COMPTEUR = %d ###############\n", *compteur);
+}
+
+
+void __regparm__(1) intr_hdlr_32(int_ctx_t * ctx){
+      debug("In handler int32 %d\n", ctx->nr.blow);
+      scheduler(ctx);
+}
+
 void __regparm__(1) intr_hdlr(int_ctx_t *ctx)
 {
+
+   uint8_t vector = ctx->nr.blow;
+   
    debug("\nIDT event\n"
          " . int    #%d\n"
          " . error  0x%x\n"
@@ -54,7 +83,7 @@ void __regparm__(1) intr_hdlr(int_ctx_t *ctx)
          ,ctx->gpr.esi.raw
          ,ctx->gpr.edi.raw);
 
-   uint8_t vector = ctx->nr.blow;
+
 
    if(vector < NR_EXCP)
       excp_hdlr(ctx);
