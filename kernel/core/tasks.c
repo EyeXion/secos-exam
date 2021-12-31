@@ -24,7 +24,6 @@ void init_task(uint32_t esp_kernel, uint32_t esp_user, uint32_t eip, uint32_t PG
 
     //Setup the struct in the array for this task
     nb_tasks++;
-    tasks[nb_tasks].pid = nb_tasks;
     // esp_k - 14 cuz we have the interruption stack for the iret, the err code and int code and the general registers to pop when we exit an interruption
     tasks[nb_tasks].esp_kernel = (uint32_t)(esp_k - 14);
     tasks[nb_tasks].PGD = PGD;
@@ -66,7 +65,7 @@ void __attribute__((section(".user2"))) user2(){
 
 void scheduler(int_ctx_t * ctx){
 
-    debug("In scheduler with index of task : %d and ctx raw : %p\n", current_task_pid, ctx->cs.raw);
+    debug("In scheduler with index of current task : %d\n", current_task_pid);
     if (ctx->cs.raw == 0x8){
         printf("Interruption of an interruption (RING 0)\n");
     }
@@ -92,8 +91,7 @@ void scheduler(int_ctx_t * ctx){
     set_esp(esp_kernel);
     tss->s0.esp = tasks[current_task_pid].esp_kernel;
     tss->s0.ss = gdt_krn_seg_sel(GDT_IDX_DATA_R0);
-    printf("ESP AFTER MOV : 0x%x\n", get_esp());
-    asm volatile ("popa"); // To simulate the resume_from_interruption
-    asm volatile("add $8, %esp");
+    asm volatile ("popa"); // pop general registers and EBP
+    asm volatile("add $8, %esp"); //skip int number end error code
     asm volatile ("iret");
 }

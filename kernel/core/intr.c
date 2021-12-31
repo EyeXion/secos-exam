@@ -38,15 +38,12 @@ void intr_init()
 
 
 void __regparm__(1) intr_hdlr_80(int_ctx_t * ctx){
-   //debug("In handler int80 %d\n", ctx->nr.blow);
-
    uint32_t* compteur = (uint32_t*) ctx->gpr.esi.raw;
    debug("############# COMPTEUR = %d ###############\n", *compteur);
 }
 
 
 void __regparm__(1) intr_hdlr_32(int_ctx_t * ctx){
-      debug("In handler int32 %d\n", ctx->nr.blow);
       scheduler(ctx);
 }
 

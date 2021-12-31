@@ -18,14 +18,8 @@ void tp()
 
   init_task(USER1_KSTACK_ADDR, USER1_USTACK_ADDR, USER1_CODE_ADDR, PGD_USER1_ADDR);
   init_task(USER2_KSTACK_ADDR, USER2_USTACK_ADDR, USER2_CODE_ADDR, PGD_USER2_ADDR);
-
   
-  //force_interrupts_on();
-  printf("Helloooo\n");
-
-  asm volatile ("int $32");
-
-  printf("Goodbye\n");
+  force_interrupts_on();
 
 
   while(1){}

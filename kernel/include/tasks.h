@@ -18,9 +18,6 @@ Will use an array with an index to count number of tasks (cirucular list could h
 */
 typedef struct task_ctx_t{
 
-    //ID of the task (more for the fun of it :)
-    uint32_t pid;
-
     //ESP in the kernel stack for this user
     uint32_t esp_kernel;
 

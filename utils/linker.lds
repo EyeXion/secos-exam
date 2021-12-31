@@ -36,7 +36,4 @@ SECTIONS
 
    . = 0xc00000;
    .user2     : { KEEP(*(.user2)) . = ALIGN(4);     } : phsetup
-
-   . = 0x1000000;
-   .shared_mem  : { KEEP(*(.user2)) . = ALIGN(4);     } : phsetup
 }  

@@ -55,9 +55,13 @@ resume_from_intr:
         iret
 
 
+/*
+** IDT handlers
+*/
+
 idt_80:
         .align 16
-        pushl $-1
+        pushl $1
         pushl $80
         pusha
         mov %esp, %eax
@@ -66,7 +70,7 @@ idt_80:
 
 idt_32:
         .align 16
-        pushl   $-1
+        pushl   $1
         pushl	$32    
         push	%eax
 	movb	$0x20, %al
@@ -76,9 +80,7 @@ idt_32:
         mov %esp, %eax
         call intr_hdlr_32
 
-/*
-** IDT handlers
-*/
+
 .section        .idt_jmp, "ax", @progbits
 
 idt_trampoline:
